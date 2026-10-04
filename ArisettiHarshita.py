@@ -17,7 +17,7 @@ def getMyPosition(prcSoFar):
     ranked = np.argsort(recent_return)
 
     # Asymmetric portfolio
-    n_long = 25
+    n_long = 30
     n_short = 10
 
     long_assets = ranked[:n_long]
