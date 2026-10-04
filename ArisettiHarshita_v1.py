@@ -2,41 +2,42 @@ import numpy as np
 
 def getMyPosition(prcSoFar):
     """
-    2-Day Cross-Sectional Mean Reversion Strategy
+    3-Day Cross-Sectional Mean Reversion Strategy
 
-    - Calculates each asset's 2-day return.
-    - Buys the 10 worst-performing assets.
-    - Shorts the 10 best-performing assets.
+    - Calculates each asset's 3-day return.
+    - Buys the 10 assets with the worst recent performance.
+    - Shorts the 10 assets with the best recent performance.
     - Uses the maximum allowed dollar position.
+    - Leaves the remaining assets at zero.
     """
 
     num_assets, num_days = prcSoFar.shape
 
     positions = np.zeros(num_assets)
 
-    if num_days < 3:
+    # Need at least 3 days of history
+    if num_days < 4:
         return positions
 
-    # Calculate 2-day return
+    # 3-day percentage return
     recent_return = (
-        prcSoFar[:, -1] / prcSoFar[:, -3]
+        prcSoFar[:, -1] / prcSoFar[:, -4]
     ) - 1.0
 
-    # Rank assets from worst to best
+    # Rank assets by recent performance
     ranked = np.argsort(recent_return)
 
+    # Number of assets on each side
     n = 10
 
-    # Worst performers -> LONG
+    # Buy the 10 worst performers
     long_assets = ranked[:n]
 
-    # Best performers -> SHORT
+    # Short the 10 best performers
     short_assets = ranked[-n:]
 
-    # Dollar position limits
+    # Position limits in dollars
     dollar_limits = np.full(num_assets, 10000.0)
-
-    # Instrument 0 has a larger limit
     dollar_limits[0] = 100000.0
 
     current_prices = prcSoFar[:, -1]
