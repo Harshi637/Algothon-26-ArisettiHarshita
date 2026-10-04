@@ -10,9 +10,12 @@ def getMyPosition(prcSoFar):
     # 2-day mean reversion signal
     recent_return = (prcSoFar[:, -1] / prcSoFar[:, -3]) - 1.0
 
-    # Rank from worst to best
     ranked = np.argsort(recent_return)
 
+    # Ignore very weak reversal signals
+    active = np.abs(recent_return) > 0.002
+    ranked = np.array([i for i in ranked if active[i]])
+    
     # Asymmetric portfolio
     n_long = 45
     n_short = 10
