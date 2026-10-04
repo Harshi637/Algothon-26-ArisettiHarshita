@@ -13,7 +13,7 @@ def getMyPosition(prcSoFar):
     ranked = np.argsort(recent_return)
 
     # Ignore very weak reversal signals
-    active = np.abs(recent_return) > 0.001
+    active = np.abs(recent_return) > 0.0015
     ranked = np.array([i for i in ranked if active[i]])
 
     # Asymmetric portfolio
