@@ -11,10 +11,14 @@ def getMyPosition(prcSoFar):
     recent_return = (prcSoFar[:, -1] / prcSoFar[:, -3]) - 1.0
 
     ranked = np.argsort(recent_return)
+    #Asymmetric portfolio
+    long_active = recent_return < -0.0015
+    short_active = recent_return > 0.0010
 
-    # Ignore very weak reversal signals
-    active = np.abs(recent_return) > 0.0015
-    ranked = np.array([i for i in ranked if active[i]])
+    ranked = np.array([
+        i for i in ranked
+        if long_active[i] or short_active[i]
+    ])
 
     # Asymmetric portfolio
     n_long = 45
