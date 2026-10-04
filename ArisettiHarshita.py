@@ -1,48 +1,53 @@
 import numpy as np
 
-# Track previous positions to reduce unnecessary trades
-prev_positions = np.zeros(51)
-
 def getMyPosition(prcSoFar):
     """
-    Trading strategy: Moving Average Crossover
-    - Uses 5-day vs 20-day averages
-    - Positions clipped to asset limits
-    - Trades only when signals flip (reduces commissions)
-    
-    Parameters:
-        prcSoFar (np.ndarray): Price history (51 assets × numDays)
-    
-    Returns:
-        np.ndarray: Positions for each asset
+    3-Day Cross-Sectional Mean Reversion Strategy
+
+    - Calculates each asset's 3-day return.
+    - Buys the 10 assets with the worst recent performance.
+    - Shorts the 10 assets with the best recent performance.
+    - Uses the maximum allowed dollar position.
+    - Leaves the remaining assets at zero.
     """
 
-    global prev_positions
     num_assets, num_days = prcSoFar.shape
-    positions = np.copy(prev_positions)
 
-    # Only trade after enough history
-    if num_days >= 20:
-        short_ma = np.mean(prcSoFar[:, -5:], axis=1)   # 5-day average
-        long_ma = np.mean(prcSoFar[:, -20:], axis=1)   # 20-day average
+    positions = np.zeros(num_assets)
 
-        for i in range(num_assets):
-            signal = 0
-            if short_ma[i] > long_ma[i]:
-                signal = 1   # Long
-            elif short_ma[i] < long_ma[i]:
-                signal = -1  # Short
+    # Need at least 3 days of history
+    if num_days < 4:
+        return positions
 
-            target_position = signal * (100000 if i == 0 else 10000)
+    # 3-day percentage return
+    recent_return = (
+        prcSoFar[:, -1] / prcSoFar[:, -4]
+    ) - 1.0
 
-            # Update only if signal changed (reduces churn/commissions)
-            if target_position != prev_positions[i]:
-                positions[i] = target_position
+    # Rank assets by recent performance
+    ranked = np.argsort(recent_return)
 
-    # Clip positions to respect limits
-    positions[0] = np.clip(positions[0], -100000, 100000)   # ALGO
-    positions[1:] = np.clip(positions[1:], -10000, 10000)   # Other assets
+    # Number of assets on each side
+    n = 10
 
-    # Save for next call
-    prev_positions = positions
+    # Buy the 10 worst performers
+    long_assets = ranked[:n]
+
+    # Short the 10 best performers
+    short_assets = ranked[-n:]
+
+    # Position limits in dollars
+    dollar_limits = np.full(num_assets, 10000.0)
+    dollar_limits[0] = 100000.0
+
+    current_prices = prcSoFar[:, -1]
+
+    # Long positions
+    for i in long_assets:
+        positions[i] = dollar_limits[i] / current_prices[i]
+
+    # Short positions
+    for i in short_assets:
+        positions[i] = -dollar_limits[i] / current_prices[i]
+
     return positions
