@@ -23,6 +23,8 @@ def getMyPosition(prcSoFar):
     long_assets = ranked[:n_long]
     short_assets = ranked[-n_short:]
 
+    short_assets = [i for i in short_assets if i not in {10, 29}]
+
     # Position limits
     dollar_limits = np.full(num_assets, 10000.0)
     dollar_limits[0] = 100000.0
