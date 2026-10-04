@@ -1,15 +1,6 @@
 import numpy as np
 
 def getMyPosition(prcSoFar):
-    """
-    2-Day Cross-Sectional Mean Reversion Strategy
-
-    - Calculates each asset's 2-day return.
-    - Buys the 10 worst-performing assets.
-    - Shorts the 10 best-performing assets.
-    - Uses the maximum allowed dollar position.
-    """
-
     num_assets, num_days = prcSoFar.shape
 
     positions = np.zeros(num_assets)
@@ -17,36 +8,33 @@ def getMyPosition(prcSoFar):
     if num_days < 3:
         return positions
 
-    # Calculate 2-day return
+    # 2-day return
     recent_return = (
         prcSoFar[:, -1] / prcSoFar[:, -3]
     ) - 1.0
 
-    # Rank assets from worst to best
+    # Rank from worst to best
     ranked = np.argsort(recent_return)
 
-    n = 10
+    # Asymmetric portfolio
+    n_long = 15
+    n_short = 10
 
-    # Worst performers -> LONG
-    long_assets = ranked[:n]
+    long_assets = ranked[:n_long]
+    short_assets = ranked[-n_short:]
 
-    # Best performers -> SHORT
-    short_assets = ranked[-n:]
-
-    # Dollar position limits
+    # Position limits
     dollar_limits = np.full(num_assets, 10000.0)
-
-    # Instrument 0 has a larger limit
     dollar_limits[0] = 100000.0
 
-    current_prices = prcSoFar[:, -1]
+    prices = prcSoFar[:, -1]
 
-    # Long positions
+    # Long worst performers
     for i in long_assets:
-        positions[i] = dollar_limits[i] / current_prices[i]
+        positions[i] = dollar_limits[i] / prices[i]
 
-    # Short positions
+    # Short best performers
     for i in short_assets:
-        positions[i] = -dollar_limits[i] / current_prices[i]
+        positions[i] = -dollar_limits[i] / prices[i]
 
     return positions
