@@ -27,7 +27,7 @@ def getMyPosition(prcSoFar):
     # Don't long assets 35 and 38
     long_assets = [
     i for i in ranked[:n_long]
-    if i not in {35, 38, 14, 23, 28, 29, 2, 21}
+    if i not in {35, 38, 14, 23, 28, 29, 2, 21, 43}
     ]
     
     # Don't short assets 10 and 29
