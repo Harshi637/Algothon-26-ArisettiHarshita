@@ -18,11 +18,17 @@ def getMyPosition(prcSoFar):
     n_short = 10
 
     # Don't long assets 35 and 38
-    long_assets = [i for i in ranked[:n_long] if i not in {35, 38}]
+    long_assets = [
+    i for i in ranked[:n_long]
+    if i not in {35, 38, 14, 23}
+]
 
     # Don't short assets 10 and 29
     short_assets = ranked[-n_short:]
-    short_assets = [i for i in short_assets if i not in {10, 29}]
+    short_assets = [
+    i for i in short_assets
+    if i not in {10, 29, 39, 24}
+]
 
     # Position limits
     dollar_limits = np.full(num_assets, 10000.0)
