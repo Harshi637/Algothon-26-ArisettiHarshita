@@ -27,7 +27,7 @@ def getMyPosition(prcSoFar):
     short_assets = ranked[-n_short:]
     short_assets = [
     i for i in short_assets
-    if i not in {10, 29, 39, 24, 35, 38, 43, 46, 49}
+    if i not in {10, 29, 39, 24, 35, 38, 43, 46, 49, 20}
     ]
 
     # Position limits
